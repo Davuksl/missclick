@@ -19,6 +19,11 @@ CLIENTEFFECT_REGISTER_BEGIN( PrecacheEffectGravityGun )
 CLIENTEFFECT_MATERIAL( "sprites/physbeam" )
 CLIENTEFFECT_REGISTER_END()
 
+// Physgun beam endpoint interpolation rate. Higher = snappier / less lag,
+// lower = smoother / looser. 0 disables smoothing (snap to networked values).
+static ConVar physgun_beam_smooth( "physgun_beam_smooth", "15", FCVAR_ARCHIVE | FCVAR_CLIENTDLL,
+	"Physgun beam interpolation rate. Higher = snappier, lower = smoother. 0 = off." );
+
 class C_BeamQuadratic : public CDefaultClientRenderable
 {
 public:
@@ -33,6 +38,10 @@ public:
 	virtual bool					ShouldReceiveProjectedTextures( int flags ) { return false; }
 	virtual int						DrawModel( int flags );
 
+	matrix3x4_t z;
+	const matrix3x4_t& RenderableToWorldTransform() { return z; }
+
+
 	// Returns the bounds relative to the origin (render bounds)
 	virtual void	GetRenderBounds( Vector& mins, Vector& maxs )
 	{
@@ -44,6 +53,9 @@ public:
 	C_BaseEntity			*m_pOwner;
 	Vector					m_targetPosition;
 	Vector					m_worldPosition;
+	Vector					m_smoothTarget;		// interpolated copies of the networked endpoints
+	Vector					m_smoothWorld;
+	bool					m_smoothValid;		// false until the smoother has been seeded
 	int						m_active;
 	int						m_glueTouching;
 	int						m_viewModelIndex;
@@ -105,6 +117,7 @@ END_RECV_TABLE()
 C_BeamQuadratic::C_BeamQuadratic()
 {
 	m_pOwner = NULL;
+	m_smoothValid = false;
 }
 
 void C_BeamQuadratic::Update( C_BaseEntity *pOwner )
@@ -114,6 +127,7 @@ void C_BeamQuadratic::Update( C_BaseEntity *pOwner )
 	{
 		if ( m_hRenderHandle == INVALID_CLIENT_RENDER_HANDLE )
 		{
+			m_smoothValid = false;	// fresh grab: snap to the endpoints, don't sweep in
 			ClientLeafSystem()->AddRenderable( this, RENDER_GROUP_TRANSLUCENT_ENTITY );
 		}
 		else
@@ -141,11 +155,29 @@ int	C_BeamQuadratic::DrawModel( int )
 		return 0;
 	pEnt->GetAttachment( 1, points[0], tmpAngle );
 
-	points[1] = 0.5 * (m_targetPosition + points[0]);
-	
+	// The networked endpoints only change on a network update (tick rate), but this
+	// runs every rendered frame. Ease the smoothed copies toward them so the beam
+	// doesn't snap between updates. Seed on the first frame after a (re)grab.
+	if ( !m_smoothValid )
+	{
+		m_smoothTarget = m_targetPosition;
+		m_smoothWorld  = m_worldPosition;
+		m_smoothValid  = true;
+	}
+
+	// Frame-rate-independent exponential smoothing. Rate comes from a convar so it
+	// can be tuned live; <= 0 disables smoothing and snaps to the networked values.
+	float flRate = physgun_beam_smooth.GetFloat();
+	float flLerp = ( flRate > 0.0f ) ? 1.0f - expf( -gpGlobals->frametime * flRate ) : 1.0f;
+
+	m_smoothTarget += ( m_targetPosition - m_smoothTarget ) * flLerp;
+	m_smoothWorld  += ( m_worldPosition  - m_smoothWorld  ) * flLerp;
+
+	points[1] = 0.5f * (m_smoothTarget + points[0]);
+
 	// a little noise 11t & 13t should be somewhat non-periodic looking
 	//points[1].z += 4*sin( gpGlobals->curtime*11 ) + 5*cos( gpGlobals->curtime*13 );
-	points[2] = m_worldPosition;
+	points[2] = m_smoothWorld;
 
 	IMaterial *pMat = materials->FindMaterial( "sprites/physbeam", TEXTURE_GROUP_CLIENT_EFFECTS );
 	Vector color;
@@ -159,7 +191,8 @@ int	C_BeamQuadratic::DrawModel( int )
 	}
 
 	float scrollOffset = gpGlobals->curtime - (int)gpGlobals->curtime;
-	materials->Bind( pMat );
+	CMatRenderContextPtr pRenderContext(materials);
+	pRenderContext->Bind(pMat);
 	DrawBeamQuadratic( points[0], points[1], points[2], 13, color, scrollOffset );
 	return 1;
 }

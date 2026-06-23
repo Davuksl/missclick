@@ -46,7 +46,7 @@ public:
 	~CGravityPellet();
 	void Precache()
 	{
-		SetModelName( MAKE_STRING( "models/weapons/glueblob.mdl" ) );
+		SetModelName( MAKE_STRING( "models/weapons/w_bugbait.mdl" ) );
 		PrecacheModel( STRING( GetModelName() ) );
 		BaseClass::Precache();
 	}
@@ -841,6 +841,7 @@ void CWeaponGravityGun::EffectUpdate( void )
 	{
 		m_gravCallback.ClearAutoAlign();
 	}
+	NetworkStateChanged();
 }
 
 void CWeaponGravityGun::SoundCreate( void )
@@ -1422,7 +1423,7 @@ bool CWeaponGravityGun::Reload( void )
 	return false;
 }
 
-#define NUM_COLLISION_TESTS 2500
+/*#define NUM_COLLISION_TESTS 2500
 void CC_CollisionTest( const CCommand &args )
 {
 	if ( !physenv )
@@ -1520,4 +1521,4 @@ void CC_CollisionTest( const CCommand &args )
 	}
 #endif
 }
-static ConCommand collision_test("collision_test", CC_CollisionTest, "Tests collision system", FCVAR_CHEAT );
+static ConCommand collision_test("collision_test", CC_CollisionTest, "Tests collision system", FCVAR_CHEAT );*/
