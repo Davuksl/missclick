@@ -1,7 +1,7 @@
 "GameInfo"
 {
 	game	"Missclick"
-	title	"MISSCLICK"
+	title	"M I S S C L I C K"
 	title2	""
 	type multiplayer_only
 	nomodels 0
