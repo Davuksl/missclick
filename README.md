@@ -6,6 +6,9 @@ project created by depsep, bobr, clxz, and davuksdev
 ## Contents
 we readded hl2 beta Physics Gun, HL2 jeep because valve removed it for the multiplayer sdk, npc interactions, and yeah thats pretty much it as of now. we are working on this project for fun bc yes 
 
+### Working contents
+npc_zombies work, vehicles work but are buggy, npc interactions work fine but npcs themselves dont, physgun works fine, and engine works obviously
+
 ## Building
 basically the same as valve's source 2013 sdk, download and do tons of different stuff to it ig
 
