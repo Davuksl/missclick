@@ -473,6 +473,7 @@ void CAI_ScriptConditions::EvaluationThink()
 
 	int iActorsDone = 0;
 
+	//No need to modify this one as it's HL2 dll only.
 #ifdef HL2_DLL
 	if( AI_GetSinglePlayer()->GetFlags() & FL_NOTARGET )
 	{

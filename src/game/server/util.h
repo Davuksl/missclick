@@ -230,6 +230,11 @@ CBasePlayer* UTIL_GetLocalPlayer( void );
 // get the local player on a listen server
 CBasePlayer *UTIL_GetListenServerHost( void );
 
+//get nearest player for mp
+//MODIFICATION HERE!!
+CBasePlayer* UTIL_GetNearestPlayer(CBaseEntity* pLooker, bool needsLOS = false);
+
+
 // Convenience function so we don't have to make this check all over
 inline CBasePlayer *UTIL_GetLocalPlayerOrListenServerHost( void )
 {

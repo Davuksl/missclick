@@ -547,6 +547,8 @@ CAI_Hint *CAI_ActBusyBehavior::FindCombatActBusyTeleportHintNode()
 {
 	Assert( IsCombatActBusy() );
 
+	//What the fuck do I do here?
+	//Can't replace this with UTIL_GetNearestPlayer due to it being a BEHAVIOUR.
 	CBasePlayer *pPlayer = AI_GetSinglePlayer();
 
 	if( !pPlayer )

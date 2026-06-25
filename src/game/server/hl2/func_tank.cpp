@@ -4215,7 +4215,7 @@ void CFuncTankCombineCannon::FuncTankPostThink()
 			AddSpawnFlags( SF_TANK_AIM_AT_POS );
 
 			Vector vecTargetPosition = GetTargetPosition();
-			CBasePlayer *pPlayer = AI_GetSinglePlayer();
+			CBasePlayer *pPlayer = UTIL_GetNearestPlayer(this);
 			Vector vecToPlayer = pPlayer->WorldSpaceCenter() - GetAbsOrigin();
 			vecToPlayer.NormalizeInPlace();
 

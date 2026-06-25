@@ -490,6 +490,8 @@ int CAI_BlendedMotor::GetInteriorSequence( int fromSequence )
 		}
 		m_nInteriorSequence = GetOuter()->SelectWeightedSequence( GetOuter()->TranslateActivity( activity ), fromSequence );
 
+		//source of one assertion
+		//ASSERTIONSOURCEMOD
 		Assert( m_nInteriorSequence != ACT_INVALID );
 	}
 

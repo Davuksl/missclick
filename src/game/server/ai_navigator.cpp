@@ -956,6 +956,9 @@ int CAI_Navigator::GetMovementSequence( )
 				sequence = GetOuter()->SelectWeightedSequence( GetOuter()->TranslateActivity( ACT_WALK ) );
 			}
 		}
+
+		//another assertion
+		//ASSERTSOURCEMOD
 		Assert( sequence != ACT_INVALID );
 		GetPath()->SetMovementSequence( sequence );
 	}
